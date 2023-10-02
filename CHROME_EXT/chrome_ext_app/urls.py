@@ -8,6 +8,7 @@ urlpatterns = [
     path('all_records/', views.AllRecordingsView.as_view()),
     path('save-data/<int:id>/', views.GetDataView.as_view()),
     path('singlevideo/<int:id>/', views.SingleVideoView.as_view()),
+    
     # path('playback/<uuid:unique_identifier>/', SingleVideoView.as_view(), name='video_playback'),
 ]
 
