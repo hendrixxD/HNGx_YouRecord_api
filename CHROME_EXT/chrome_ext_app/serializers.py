@@ -17,14 +17,19 @@ class CreateRecordingSerializer(serializers.ModelSerializer):
         recordings = Recordings.objects.create(name=uuid.uuid4(), **validated_data)
         return recordings
 
-
 class GetRecordingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recordings
         fields = ['id', 'name', 'title', 'transcript', 'video', 'created_at']
-
-
+        
 class GetRecordingVideoSerializer(serializers.Serializer):
     recording = GetRecordingSerializer()
     # videos = VideoSerializers(many=True)
+    
+class TranscriptionSerializer(serializers.ModelSerializer):
+    video = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['mp3', 'mp4'])])
+    
+    class Meta:
+        model = Recordings
+        fields = ('id', 'title', 'transcript', 'video')
 
