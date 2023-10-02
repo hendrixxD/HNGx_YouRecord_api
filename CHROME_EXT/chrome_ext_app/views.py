@@ -20,6 +20,7 @@ from django.core.files import File
 import io
 from django.core.files.base import ContentFile
 
+BASE_URL = 'https://chromeextensionapi-rmrj.onrender.com'
 
 # Create your views here.
 BASE_URL = settings.BASE_DIR
