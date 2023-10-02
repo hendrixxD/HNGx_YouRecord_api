@@ -19,6 +19,7 @@ django4-background-tasks==1.2.9
 djangorestframework==3.14.0
 drf-yasg==1.21.7
 frozenlist==1.4.0
+gunicorn==21.2.0
 idna==3.4
 imageio==2.31.5
 imageio-ffmpeg==0.4.9

@@ -121,7 +121,7 @@ class GetDataView(APIView):
             return Response({'message': 'No ID'}, status=status.HTTP_200_OK)
 
 
-class SingleVideoView(generics.ListAPIView):
+class GetSingleVideoView(generics.ListAPIView):
     serializer_class = GetRecordingSerializer
 
     def get(self, request:HttpRequest, id:int):
