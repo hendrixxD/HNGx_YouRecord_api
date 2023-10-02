@@ -97,11 +97,6 @@ class GetVideoDataView(APIView):
                     for chunk in data.chunks():
                         file.write(chunk)
 
-                # Save the received MP4 data in a file within the folder
-                # file_path = os.path.join(folder_path, 'received_data.mp4')
-                # with open(file_path, 'wb') as file:
-                #     file.write(data)
-
                 return Response({'message': 'Data saved successfully'}, status=status.HTTP_201_CREATED)
             except Recordings.DoesNotExist:
                 return Response({'error': 'Recording not found'}, status=status.HTTP_404_NOT_FOUND)
