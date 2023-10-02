@@ -17,6 +17,7 @@ class Recordings(TimeStamp):
     name = models.CharField(max_length=270, blank=True, null=True)
     transcript = models.TextField(blank=True, null=True)
     video = models.FileField(("Video File"), upload_to='videos/', null=True, blank=True)
+    is_transcript_completed = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
     # unique_identifier = models.UUIDField(default=uuid.uuid4, unique=True)
     # size = models.BigIntegerField(null=True, blank=True)

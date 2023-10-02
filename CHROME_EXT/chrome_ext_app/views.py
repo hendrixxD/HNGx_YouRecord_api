@@ -69,57 +69,63 @@ class AllRecordingsView(generics.ListAPIView):
         return Response(data=payload, status=status.HTTP_200_OK)
 
 
-class GetDataView(APIView):
+class GetVideoDataView(APIView):
     def put(self, request, id):
         data = request.data.get("data")
-        # print(request.FILES, "request files")
-        # print(request.data, "request data")
+        recording_id = id
+
+        if recording_id and data:
+            try:
+                recording = Recordings.objects.get(id=recording_id)
+                folder_name = recording.name
+
+                folder_path = os.path.join(
+                    settings.BASE_DIR, 'media', folder_name)
+                os.makedirs(folder_path, exist_ok=True)
+
+                base_filename = 'received_data'
+                ext = '.mp4'
+                i = 0
+                while True:
+                    filename = f'{base_filename}{i}{ext}'
+                    file_path = os.path.join(folder_path, filename)
+                    if not os.path.exists(file_path):
+                        break
+                    i += 1
+
+                with open(file_path, 'wb') as file:
+                    for chunk in data.chunks():
+                        file.write(chunk)
+
+                # Save the received MP4 data in a file within the folder
+                # file_path = os.path.join(folder_path, 'received_data.mp4')
+                # with open(file_path, 'wb') as file:
+                #     file.write(data)
+
+                return Response({'message': 'Data saved successfully'}, status=status.HTTP_201_CREATED)
+            except Recordings.DoesNotExist:
+                return Response({'error': 'Recording not found'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'error': 'Recording ID or Data not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MergeRecordingView(generics.UpdateAPIView):
+
+    def put(self, request, id):
         recording_id = id
         if recording_id:
             try:
-                video = Recordings.objects.get(pk=recording_id)
-            except Recordings.DoesNotExist:
-                return Response({'error': 'No video found'}, status=status.HTTP_400_BAD_REQUEST)
-
-            if not data:
-                return Response({'error': 'No video data provided'}, status=status.HTTP_400_BAD_REQUEST)
-
-            new_video_data = data
-
-            if video.video:
-                existing_video_data = video.video.read()
-                with tempfile.NamedTemporaryFile(delete=False) as existing_tempfile:
-                    existing_tempfile.write(existing_video_data)
-                    existing_tempfile_path = existing_tempfile.name
-
-                with tempfile.NamedTemporaryFile(delete=False) as new_tempfile:
-                    new_tempfile.write(new_video_data)
-                    new_tempfile_path = new_tempfile.name
-
-                existing_clip = VideoFileClip(existing_tempfile_path)
-                new_clip = VideoFileClip(new_tempfile_path)
-
-                final_clip = concatenate_videoclips([existing_clip, new_clip])
-
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as final_tempfile:
-                    final_clip.write_videofile(
-                        final_tempfile.name, codec='libx264')
-                    final_tempfile_path = final_tempfile.name
-
-                video.video.save(f'video_{video.id}.mp4', ContentFile(
-                    open(final_tempfile_path, 'rb').read()))
-
-                os.remove(existing_tempfile_path)
-                os.remove(new_tempfile_path)
-                os.remove(final_tempfile_path)
-
-                return Response({'message': 'Video appended and joined successfully'}, status=status.HTTP_200_OK)
-            else:
-                video.video.save(
-                    f'video_{video.id}.webm', new_video_data)
-                return Response({'message': 'Video added successfully'}, status=status.HTTP_200_OK)
+                recording = Recordings.objects.get(id=recording_id)
+                print(recording)
+                merge_recording(recording_id)
+                recording.is_completed = True
+                recording.save()
+                return Response({'message': 'Video files is currently being merged.'}, status=status.HTTP_200_OK)
+            except Exception as e:
+                print(e)
+                return Response({'error': 'Recording not found'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            return Response({'message': 'No ID'}, status=status.HTTP_200_OK)
+            return Response({'error': 'Recording ID not provided'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetSingleVideoView(generics.ListAPIView):
